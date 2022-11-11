@@ -9,6 +9,20 @@ type FreetResponse = {
   dateCreated: string;
   content: string;
   dateModified: string;
+  anonymous: string;
+  local: string;
+  city: string;
+};
+
+type AnonFreetResponse = {
+  _id: string;
+  hidden_author: string;
+  dateCreated: string;
+  content: string;
+  dateModified: string;
+  anonymous: string;
+  local: string;
+  city: string;
 };
 
 /**
@@ -33,16 +47,50 @@ const constructFreetResponse = (freet: HydratedDocument<Freet>): FreetResponse =
     })
   };
   const {username} = freetCopy.authorId;
+
+  const cityname = freetCopy.city;
   delete freetCopy.authorId;
+  delete freetCopy.city;
+
   return {
     ...freetCopy,
     _id: freetCopy._id.toString(),
     author: username,
+    city: cityname,
     dateCreated: formatDate(freet.dateCreated),
     dateModified: formatDate(freet.dateModified)
   };
 };
 
+/**
+ * Transform a raw Freet object from the database into an object
+ * with all the information needed by the frontend
+ *
+ * @param {HydratedDocument<Freet>} freet - A freet
+ * @returns {AnonFreetResponse} - The freet object formatted for the frontend
+ */
+const constructAnonFreetResponse = (freet: HydratedDocument<Freet>): AnonFreetResponse => {
+  const freetCopy: PopulatedFreet = {
+    ...freet.toObject({
+      versionKey: false // Cosmetics; prevents returning of __v property
+    })
+  };
+
+  const cityname = freetCopy.city;
+  delete freetCopy.city;
+  
+  return {
+    ...freetCopy,
+    _id: freetCopy._id.toString(),
+    hidden_author: "USER IS ANONYMOUS",
+    city: cityname,
+    dateCreated: formatDate(freet.dateCreated),
+    dateModified: formatDate(freet.dateModified)
+  };
+};
+
+
 export {
-  constructFreetResponse
+  constructFreetResponse,
+  constructAnonFreetResponse
 };

@@ -9,9 +9,10 @@ Vue.use(Vuex);
  */
 const store = new Vuex.Store({
   state: {
-    filter: null, // Username to filter shown freets by (null = show all)
+    filter: '', // Username to filter shown freets by (null = show all)
     freets: [], // All freets created in the app
     username: null, // Username of the logged in user
+    user_id: null, // user_id
     alerts: {} // global success/error messages encountered during submissions to non-visible forms
   },
   mutations: {
@@ -24,6 +25,13 @@ const store = new Vuex.Store({
         Vue.delete(state.alerts, payload.message);
       }, 3000);
     },
+    setUserId(state, user_id) {
+      /**
+       * Update the stored username to the specified one.
+       * @param username - new username to set
+       */
+      state.username = user_id;
+    },    
     setUsername(state, username) {
       /**
        * Update the stored username to the specified one.
@@ -52,10 +60,28 @@ const store = new Vuex.Store({
       const url = state.filter ? `/api/users/${state.filter}/freets` : '/api/freets';
       const res = await fetch(url).then(async r => r.json());
       state.freets = res;
-    }
+    },
+    async refreshAnonFreets(state) {
+      /**
+       * Request the server for the currently available freets.
+       */
+      const url = `/api/freets/:anonymous`;
+      const res = await fetch(url).then(async r => r.json());
+      state.freets = res;
+    },
+    async refreshLocalFreets(state) {
+      /**
+       * Request the server for the currently available freets.
+       */
+      const url = `/api/freets/:local`;
+      const res = await fetch(url).then(async r => r.json());
+      state.freets = res;
+    },
   },
   // Store data across page refreshes, only discard on browser close
   plugins: [createPersistedState()]
 });
 
 export default store;
+
+

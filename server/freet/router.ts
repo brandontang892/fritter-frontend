@@ -29,7 +29,7 @@ router.get(
   '/',
   async (req: Request, res: Response, next: NextFunction) => {
     // Check if author query parameter was supplied
-    if (req.query.author !== undefined) {
+    if (req.query.author !== null || req.query.author !== undefined) {
       next();
       return;
     }
@@ -45,8 +45,45 @@ router.get(
     const authorFreets = await FreetCollection.findAllByUsername(req.query.author as string);
     const response = authorFreets.map(util.constructFreetResponse);
     res.status(200).json(response);
+  },
+);
+
+ /**
+ * Get all the anon freets
+ *
+ * @name GET /api/freets/:anonymous
+ *
+ * @return {FreetResponse[]} - A list of all the anonymous freets sorted in descending
+ *                      order by date modified
+ */
+router.get(
+  '/:anonymous',
+  async (req: Request, res: Response) => {
+    const anonAuthorFreets = await FreetCollection.findAllAnonymous();
+    const response = anonAuthorFreets.map(util.constructAnonFreetResponse);
+    res.status(200).json(response);
   }
 );
+
+
+ /**
+ * Get all the local freets (same city as you)
+ *
+ * @name GET /api/freets/:local
+ *
+ * @return {FreetResponse[]} - A list of all the anonymous freets sorted in descending
+ *                      order by date modified
+ */
+router.get(
+  '/:local',
+  async (req: Request, res: Response) => {
+    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    const localAuthorFreets = await FreetCollection.findAllLocal(userId);
+    const response = localAuthorFreets.map(util.constructFreetResponse);
+    res.status(200).json(response);
+  }
+);
+
 
 /**
  * Create a new freet.
@@ -59,11 +96,13 @@ router.get(
  * @throws {400} - If the freet content is empty or a stream of empty spaces
  * @throws {413} - If the freet content is more than 140 characters long
  */
+
 router.post(
   '/',
   [
     userValidator.isUserLoggedIn,
-    freetValidator.isValidFreetContent
+    freetValidator.isValidFreetContent,
+    freetValidator.isValidFreetContent,
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
@@ -75,6 +114,69 @@ router.post(
     });
   }
 );
+
+
+ /**
+ * Create a new anonymous freet.
+ *
+ * @name POST /api/freets/anonymous
+ *
+ * @param {string} content - The content of the freet
+ * @return {FreetResponse} - The created freet
+ * @throws {403} - If the user is not logged in
+ * @throws {400} - If the freet content is empty or a stream of empty spaces
+ * @throws {413} - If the freet content is more than 140 characters long
+ */
+
+router.post(
+  '/anonymous',
+   [
+    userValidator.isUserLoggedIn,
+    freetValidator.isValidFreetContent,
+    freetValidator.isValidFreetContent,
+  ],
+  async (req: Request, res: Response) => {
+    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    const freet = await FreetCollection.addAnonOne(userId, req.body.content);
+
+    res.status(201).json({
+      message: 'Your anonymous freet was created successfully.',
+      freet: util.constructAnonFreetResponse(freet)
+    });
+  }
+);
+
+
+ /**
+ * Create a new local freet.
+ *
+ * @name POST /api/freets/local
+ *
+ * @param {string} content - The content of the freet
+ * @return {FreetResponse} - The created freet
+ * @throws {403} - If the user is not logged in
+ * @throws {400} - If the freet content is empty or a stream of empty spaces
+ * @throws {413} - If the freet content is more than 140 characters long
+ */
+
+router.post(
+  '/local',
+   [
+    userValidator.isUserLoggedIn,
+    freetValidator.isValidFreetContent,
+    freetValidator.isValidFreetContent,
+  ],
+  async (req: Request, res: Response) => {
+    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    const freet = await FreetCollection.addLocalOne(userId, req.body.content);
+
+    res.status(201).json({
+      message: 'Your local freet was created successfully.',
+      freet: util.constructFreetResponse(freet)
+    });
+  }
+);
+
 
 /**
  * Delete a freet

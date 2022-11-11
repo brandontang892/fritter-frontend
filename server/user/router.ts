@@ -8,27 +8,6 @@ import * as util from './util';
 const router = express.Router();
 
 /**
- * Get the signed in user
- * TODO: may need better route and documentation
- * (so students don't accidentally delete this when copying over)
- *
- * @name GET /api/users/session
- *
- * @return - currently logged in user, or null if not logged in
- */
-router.get(
-  '/session',
-  [],
-  async (req: Request, res: Response) => {
-    const user = await UserCollection.findOneByUserId(req.session.userId);
-    res.status(200).json({
-      message: 'Your session info was found successfully.',
-      user: user ? util.constructUserResponse(user) : null
-    });
-  }
-);
-
-/**
  * Sign in user.
  *
  * @name POST /api/users/session
@@ -106,7 +85,7 @@ router.post(
     userValidator.isValidPassword
   ],
   async (req: Request, res: Response) => {
-    const user = await UserCollection.addOne(req.body.username, req.body.password);
+    const user = await UserCollection.addOne(req.session.id, req.body.username, req.body.password, req.body.city);
     req.session.userId = user._id.toString();
     res.status(201).json({
       message: `Your account was created successfully. You have been logged in as ${user.username}`,
@@ -122,6 +101,7 @@ router.post(
  *
  * @param {string} username - The user's new username
  * @param {string} password - The user's new password
+ * @param {string} city - The user's new city
  * @return {UserResponse} - The updated user
  * @throws {403} - If user is not logged in
  * @throws {409} - If username already taken
@@ -169,4 +149,41 @@ router.delete(
   }
 );
 
+
+ /**
+* Get all users
+* @name GET /api/users/
+*
+* @return {UserResponse} - The updated user
+*/
+router.get(
+  '/',
+  [],
+  async (req: Request, res: Response) => {
+    const allUsers = await UserCollection.findAllUsers();
+    const response = allUsers.map(util.constructUserResponse);
+    res.status(200).json(response);
+  }
+);
+
+
+ /**
+* Get the signed in user
+* @name GET /api/users/session
+*
+* @return {UserResponse} - currently logged in user, or null if not logged in
+*/
+router.get(
+  '/session',
+  [],
+  async (req: Request, res: Response) => {
+    const user = await UserCollection.findOneByUserId(req.session.userId);
+    res.status(200).json({
+      message: 'Your session info was found successfully.',
+      user: user ? util.constructUserResponse(user) : null
+    });
+  }
+);
+
 export {router as userRouter};
+

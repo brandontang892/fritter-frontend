@@ -26,6 +26,10 @@
       >
         Login
       </router-link>
+      <router-link to="/friends">
+        Friends
+      </router-link>
+
     </div>
     <section class="alerts">
       <article

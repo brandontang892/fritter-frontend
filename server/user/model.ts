@@ -12,12 +12,18 @@ export type User = {
   username: string;
   password: string;
   dateJoined: Date;
+  city: string;
 };
 
 // Mongoose schema definition for interfacing with a MongoDB table
 // Users stored in this table will have these fields, with the
 // type given by the type property, inside MongoDB
 const UserSchema = new Schema({
+  // The user's username
+  id: {
+    type: String,
+    required: true
+  },
   // The user's username
   username: {
     type: String,
@@ -32,6 +38,10 @@ const UserSchema = new Schema({
   dateJoined: {
     type: Date,
     required: true
+  },
+  city: {
+    type: String,
+    required: false
   }
 });
 

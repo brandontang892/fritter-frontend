@@ -7,6 +7,8 @@
         <h2>Welcome @{{ $store.state.username }}</h2>
       </header>
       <CreateFreetForm />
+      <CreateAnonFreetForm />
+      <CreateLocalFreetForm />
     </section>
     <section v-else>
       <header>
@@ -31,12 +33,22 @@
             </span>
           </h2>
         </div>
-        <div class="right">
+        <div class="middle">
           <GetFreetsForm
             ref="getFreetsForm"
             value="author"
             placeholder="🔍 Filter by author (optional)"
             button="🔄 Get freets"
+          />
+        </div>
+        <div class="right">
+          <GetAnonFreetsForm
+            ref="getAnonFreetsForm"
+            button="🔄 Get anonynous freets"
+          />
+          <GetLocalFreetsForm
+            ref="getLocalFreetsForm"
+            button="🔄 Get local freets"
           />
         </div>
       </header>
@@ -61,11 +73,16 @@
 <script>
 import FreetComponent from '@/components/Freet/FreetComponent.vue';
 import CreateFreetForm from '@/components/Freet/CreateFreetForm.vue';
+import CreateAnonFreetForm from '@/components/Freet/CreateAnonFreetForm.vue';
+import CreateLocalFreetForm from '@/components/Freet/CreateLocalFreetForm.vue';
 import GetFreetsForm from '@/components/Freet/GetFreetsForm.vue';
+import GetAnonFreetsForm from '@/components/Freet/GetAnonFreetsForm.vue';
+import GetLocalFreetsForm from '@/components/Freet/GetLocalFreetsForm.vue';
+
 
 export default {
   name: 'FreetPage',
-  components: {FreetComponent, GetFreetsForm, CreateFreetForm},
+  components: {FreetComponent, GetFreetsForm, GetAnonFreetsForm, GetLocalFreetsForm, CreateFreetForm, CreateAnonFreetForm, CreateLocalFreetForm},
   mounted() {
     this.$refs.getFreetsForm.submit();
   }
