@@ -14,7 +14,7 @@ export default {
       fields: [
         {id: 'content', label: 'Content', value: ''}
       ],
-      title: 'Create a local freet',
+      title: 'Create a local freet (viewable by people in the same city as you!)',
       refreshFreets: true,
       callback: () => {
         const message = 'Successfully created a local freet!';

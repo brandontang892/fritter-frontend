@@ -14,7 +14,7 @@ export default {
       fields: [
         {id: 'content', label: 'Content', value: ''}
       ],
-      title: 'Create an anonymous freet',
+      title: 'Create an anonymous freet (your identity will not be shown to anyone!)',
       refreshFreets: true,
       callback: () => {
         const message = 'Successfully created an anonymous freet!';
