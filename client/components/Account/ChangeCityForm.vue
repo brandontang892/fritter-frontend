@@ -15,7 +15,7 @@ export default {
       fields: [
         {id: 'city', label: 'City', value: ''}
       ],
-      title: 'Change current city (this determines the city of your local freet feed!',
+      title: 'Change current city (this determines the city of your local freet feed!)',
       callback: () => {
         const message = 'Successfully changed your current city!';
         this.$set(this.alerts, message, 'success');
